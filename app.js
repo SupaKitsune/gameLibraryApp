@@ -31,8 +31,8 @@ app.post("/new-entry", function(request, response){
 		return;
 	}
 	entries.push({
-		title:request.body.title
-		body:request.body.body
+		title:request.body.title,
+		body:request.body.body,
 		published:new Date()
 	})
 	response.redirect("/")
@@ -40,7 +40,7 @@ app.post("/new-entry", function(request, response){
 
 app.use(function(request, response){
 	response.status(404).render("404")
-}
+})
 
 http.createServer(app).listen(3000, function(){
 	console.log("Game library server on port 3000 running")
