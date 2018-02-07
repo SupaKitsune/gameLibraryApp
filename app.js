@@ -45,15 +45,48 @@ passport.use(new LocalStrategy({
 	passwordField:""
 	},
 	function(username, password, done){
-		var user = {
-			username: username,
-			password: password
-		}
-		done(null, user)
+		MongoClient.connect(url, function(error, db){
+			if(error)throw error;
+			
+			var dbObj = db.db("users");
+			
+			dbObj.collection("users").findOne({username:username}, function(error, result){
+				if(result.password === password)//where three equal signs means exactly equal to
+				{
+					var user = result;
+					done(null, user)
+				}
+				else
+				{
+					done(null, false, {message:"Bad Password"})
+				}
+			})
+		})
+		// var user = {
+			// username: username,
+			// password: password
+		// }
+		// done(null, user)
 	})
 )
 
-app.get("/", function(request,response){
+function ensureAuthenticated(request, response, next){
+	if(request.isAuthenticated())
+	{
+		next()
+	}
+	else
+	{
+		response.redirect("/sign-in")
+	}
+}
+
+app.get("/logout", function(request, response){
+	request.logout()
+	response.redirect("/sign-in")
+})
+
+app.get("/", ensureAuthenticated, function(request, response){
 	MongoClient.connect(url, function(error, db){
 		if(error)throw error;
 		var dbObj = db.db("games");
@@ -67,13 +100,14 @@ app.get("/", function(request,response){
 	})
 })
 
-app.get("/new-entry", function(request,response){
+app.get("/new-entry", ensureAuthenticated, function(request,response){
 	response.render("new-entry")
 })
 
 app.get("/sign-in", function(request,response){
 	response.render("sign-in")
 })
+//})
 
 app.get("/profile", function(request,response){
 	response.json(request.user)
@@ -135,7 +169,8 @@ app.post("/sign-in", passport.authenticate("local",
 		failureRedirect:"/sign-in"
 	}),
 	function(request, response){
-		response.redirect("/profile")
+		response.redirect("/")
+		//response.redirect("/profile")
 	}
 )
 
