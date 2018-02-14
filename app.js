@@ -7,7 +7,8 @@ var cookieParser = require("cookie-parser")
 var passport = require("passport")
 var session = require("express-session")
 var MongoClient = require('mongodb').MongoClient
-var url = "mongodb://localhost:27017/"
+//var url = "mongodb://localhost:27017/"
+var url = "mongodb://Fox:Foxy@ds235768.mlab.com:35768/fox_sandbox_games"
 
 var app = express()
 
@@ -48,7 +49,7 @@ passport.use(new LocalStrategy({
 		MongoClient.connect(url, function(error, db){
 			if(error)throw error;
 			
-			var dbObj = db.db("users");
+			var dbObj = db.db("fox_sandbox_games");
 			
 			dbObj.collection("users").findOne({username:username}, function(error, result){
 				if(result.password === password)//where three equal signs means exactly equal to
@@ -89,7 +90,7 @@ app.get("/logout", function(request, response){
 app.get("/", ensureAuthenticated, function(request, response){
 	MongoClient.connect(url, function(error, db){
 		if(error)throw error;
-		var dbObj = db.db("games");
+		var dbObj = db.db("fox_sandbox_games");
 		
 		dbObj.collection("games").find().toArray(function(error, result){
 			if(error)throw error;
@@ -122,7 +123,7 @@ app.post("/new-entry", function(request, response){
 	MongoClient.connect(url, function(error, db){
 		if(error) throw error;
 		
-		var dbObj = db.db("games")
+		var dbObj = db.db("fox_sandbox_games")
 		
 		dbObj.collection("games").save(request.body, function(error, result){
 			console.log("Database " + dbObj.name + " save made.")
@@ -146,7 +147,7 @@ app.post("/sign-up", function(request, response){
 	MongoClient.connect(url, function(error, db){
 		if(error) throw error;
 		
-		var dbObj = db.db("users")
+		var dbObj = db.db("fox_sandbox_games")
 		var collection = dbObj.collection("users")
 		// var user = {
 			// username: request.body.username,
